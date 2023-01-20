@@ -10,7 +10,6 @@ ARG DESCRIPTION="Guacamole 1.4.0"
 ARG PACKAGE="MaxWaldorf/guacamole"
 ARG VERSION="1.4.0"
 ARG TARGETPLATFORM
-ARG PG_MAJOR="13"
 # Do not require interaction during build
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -38,8 +37,6 @@ ENV \
 ENV \
   GUAC_VER=${VERSION} \
   GUACAMOLE_HOME=/app/guacamole \
-  PG_MAJOR=${PG_MAJOR} \
-  PGDATA=/config/postgres \
   POSTGRES_USER=guacamole \
   POSTGRES_DB=guacamole_db
 
@@ -50,7 +47,7 @@ WORKDIR ${GUACAMOLE_HOME}
 RUN echo "deb http://deb.debian.org/debian bullseye-backports main contrib non-free" >> /etc/apt/sources.list
 
 #Add essential packages
-RUN apt-get update && apt-get dist-upgrade -y && apt-get install -y curl postgresql-${PG_MAJOR} ghostscript
+RUN apt-get update && apt-get dist-upgrade -y && apt-get install -y curl ghostscript
 
 # Apply the s6-overlay
 RUN if [ "$TARGETPLATFORM" = "linux/amd64" ]; then ARCH=amd64; elif [ "$TARGETPLATFORM" = "linux/arm/v6" ]; then ARCH=arm; elif [ "$TARGETPLATFORM" = "linux/arm/v7" ]; then ARCH=armhf; elif [ "$TARGETPLATFORM" = "linux/arm64" ]; then ARCH=aarch64; else ARCH=amd64; fi \
@@ -140,7 +137,6 @@ RUN apt-get purge -y build-essential \
   && rm -rf /var/lib/apt/lists/*
 
 # Finishing Container configuration
-ENV PATH=/usr/lib/postgresql/${PG_MAJOR}/bin:$PATH
 ENV GUACAMOLE_HOME=/config/guacamole
 
 WORKDIR /config
